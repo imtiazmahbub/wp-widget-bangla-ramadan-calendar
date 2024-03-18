@@ -81,51 +81,42 @@ class IftarTime2024_Widget extends WP_Widget {
                     <div>
                         <?php if(!empty($data->{date('Y-m-d')})): ?>
                             <?php
-                            $date = date('Y-m-d');
-                            $dateData = $data->{date('Y-m-d')};
-                            $iftar = date("g:i", strtotime($date ." ". $dateData->Iftar ." UTC"));
-                            $sahri = date("g:i", strtotime($date ." ". $dateData->Sahri ." UTC"));
+                                $dateTime = new DateTime(date('Y-m-d'). ' ' .$data->{date('Y-m-d')}->Iftar, new DateTimeZone('Asia/Dhaka'));
+                                $now = new DateTime();
+                                $now->setTimezone(new DateTimeZone('Asia/Dhaka'));
+                                
+                                if($dateTime < $now) {
+                                    $isSahriNext = true;
+                                    $date = date('Y-m-d', strtotime(' +1 day'));
+                                    $dateData = $data->{date('Y-m-d', strtotime(' +1 day'))};
+                                    $iftar = date("g:i", strtotime($date ." ". $dateData->Iftar ." UTC"));
+                                    $sahri = date("g:i", strtotime($date ." ". $dateData->Sahri ." UTC"));
+                                } else {
+                                    $isSahriNext = false;
+                                    $date = date('Y-m-d');
+                                    $dateData = $data->{date('Y-m-d')};
+                                    $iftar = date("g:i", strtotime($date ." ". $dateData->Iftar ." UTC"));
+                                    $sahri = date("g:i", strtotime($date ." ". $dateData->Sahri ." UTC"));
+                                }
+                                
                             ?>
                         <span><?= $this->bn_translate_number($dateData->Ramadan) ?> রমজান </span> |
                         <?php endif; ?>
                         <span><?= $this->bn_translate_number(date('d')) ?> <?= $this->bn_translate_month(date('M')) ?> <?= $this->bn_translate_day(date('l')) ?> </span>
                     </div>
-                        <div style="display: flex;flex-direction: column;align-items: center;gap: 1em;margin-top: 1em;border: 1px solid #EEEEEE;padding: 1em 1.5em 0 1.5em;">
-                            <h3>আজকের সময়সূচী</h3>
+                        <div style="display: flex;flex-direction: column;align-items: center;gap: 1em;padding: 1em 1.5em 0 1.5em;">
                             <table class="table table-condensed">
                                 <tr>
                                     <th>সাহরি</th>
                                     <th>ইফতার</th>
                                 </tr>
                                 <tr>
-                                    <td>ভোর <?= $this->bn_translate_number($iftar) ?> মিনিট</td>
-                                    <td>সন্ধ্যা <?= $this->bn_translate_number($sahri) ?> মিনিট</td>
+                                    <td style="<?=$isSahriNext ? 'color:red;' : '' ?>">ভোর <?= $this->bn_translate_number($sahri) ?> মিনিট</td>
+                                    <td style="<?=$isSahriNext ? '' : 'color:red;' ?>">সন্ধ্যা <?= $this->bn_translate_number($iftar) ?> মিনিট</td>
                                 </tr>
 
                             </table>
                         </div>
-                    <?php if(!empty($data->{date('Y-m-d', strtotime(' +1 day'))})): ?>
-                        <?php
-                            $nextDay = date('Y-m-d', strtotime(' +1 day'));
-                            $nextDateData = $data->{$nextDay};
-                            $nextIftar = date("g:i", strtotime($date ." ". $nextDateData->Iftar ." UTC"));
-                            $nextSahri = date("g:i", strtotime($date ." ". $nextDateData->Sahri ." UTC"));
-                        ?>
-                        <div style="display: flex;flex-direction: column;align-items: center;gap: 1em;margin-top: 1em;border: 1px solid #EEEEEE;padding: 1em 1.5em 0 1.5em;">
-                            <h3>আগামীকালের সময়সূচী</h3>
-                            <table class="table table-condensed">
-                                <tr>
-                                    <th>সাহরি</th>
-                                    <th>ইফতার</th>
-                                </tr>
-                                <tr>
-                                    <td>ভোর <?= $this->bn_translate_number($nextIftar) ?> মিনিট</td>
-                                    <td>সন্ধ্যা <?= $this->bn_translate_number($nextSahri) ?> মিনিট</td>
-                                </tr>
-
-                            </table>
-                        </div>
-                    <?php endif; ?>
                 </div>
             </div>
             <?php if($checkbox): ?>
